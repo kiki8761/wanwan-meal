@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>晚晚的一周食堂</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{
+  background:#faf6f1;
+  font-family:'Zen Maru Gothic','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  color:#4a3f35;
+  display:flex;flex-direction:column;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse at 15% 10%, rgba(248,200,180,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 85%, rgba(180,215,200,0.14) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 40%, rgba(245,225,200,0.12) 0%, transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+.top-fixed{flex-shrink:0;position:relative;z-index:1}
+
+.header{text-align:center;padding:14px 20px 4px;position:relative}
+.header-icon{font-size:32px;display:inline-block;animation:float 3.5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.header h1{font-size:19px;font-weight:700;color:#d4816b;margin:5px 0 2px;letter-spacing:2px}
+.header p{font-size:11px;color:#b8a99a;letter-spacing:2px;font-weight:400}
+
+/* 标签栏 */
+.tabs{
+  display:flex;margin:8px 16px 10px;
+  border-radius:16px;
+  background:rgba(255,255,255,0.7);
+  overflow:hidden;padding:3px;
+  border:1.5px solid rgba(210,195,175,0.25);
+  box-shadow:0 2px 10px rgba(180,160,140,0.06);
+}
+.tabs button{
+  flex:1;padding:9px 6px;border:none;cursor:pointer;
+  font-size:12.5px;font-family:inherit;font-weight:500;
+  background:transparent;color:#b8a99a;
+  transition:all 0.25s ease;border-radius:13px;
+}
+.tabs button.active{
+  background:linear-gradient(135deg,#fdf0e8,#fce6da);
+  color:#d4816b;font-weight:700;
+  box-shadow:0 2px 8px rgba(212,129,107,0.12);
+}
+.tabs button:active{transform:scale(0.97)}
+.badge{
+  margin-left:4px;font-size:9px;
+  background:linear-gradient(135deg,#f0a58e,#e8927a);
+  color:#fff;border-radius:50px;padding:2px 7px;font-weight:700;
+  box-shadow:0 1px 4px rgba(240,165,142,0.25);
+}
+
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1}
+
+/* 课表 */
+.schedule{margin:0 4px;display:flex;flex-direction:column}
+.sch-table{width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed;margin-top:-2px}
+.sch-table td,.sch-table th{vertical-align:top}
+.sch-table th{
+  font-size:11px;font-weight:700;padding:4px 1px;text-align:center;
+  cursor:pointer;border-radius:10px;transition:all 0.2s ease;
+}
+.sch-table th:hover{background:rgba(212,129,107,0.06)}
+.sch-table th:first-child{cursor:default;width:24px}
+.sch-table th:first-child:hover{background:none}
+
+.sch-meal-hdr{font-size:12px;color:#c4b8a8;font-weight:500;text-align:center;padding:4px 1px;width:24px}
+
+.sch-cell{
+  background:rgba(255,255,255,0.8);
+  border-radius:14px;
+  padding:5px 3px;cursor:pointer;
+  border:1.5px solid rgba(210,195,175,0.15);
+  transition:all 0.22s ease;text-align:center;
+  vertical-align:middle;
+  box-shadow:0 1px 5px rgba(180,160,140,0.05);
+}
+.sch-cell:hover{
+  border-color:rgba(212,129,107,0.25);
+  box-shadow:0 3px 14px rgba(180,160,140,0.1);
+  transform:translateY(-1px);
+}
+.sch-cell:active{transform:scale(0.97);transition:all 0.1s}
+
+.sch-dish{padding:2px 0;text-align:center}
+.sch-dish-emoji{font-size:15px;line-height:1.2}
+.sch-dish-name{font-size:8px;color:#7a6a5a;font-weight:500;line-height:1.2;word-break:break-all;max-width:100%;margin-top:1px}
+.sch-empty{font-size:14px;color:#ddd0c4;padding:6px 0}
+
+.sch-footer{text-align:center;padding:8px 14px 16px;flex-shrink:0}
+
+/* 编辑面板 */
+.mixer-panel{padding:0 14px 24px}
+
+.back-btn{
+  border:none;background:rgba(255,255,255,0.85);
+  color:#d4816b;cursor:pointer;
+  border-radius:14px;padding:7px 16px;
+  font-size:12.5px;font-family:inherit;font-weight:600;
+  margin-bottom:12px;
+  box-shadow:0 2px 8px rgba(180,160,140,0.08);
+  border:1.5px solid rgba(212,129,107,0.12);
+  transition:all 0.2s ease;
+}
+.back-btn:hover{box-shadow:0 3px 12px rgba(180,160,140,0.14);transform:translateY(-1px)}
+.back-btn:active{transform:scale(0.97)}
+
+.card{
+  background:rgba(255,255,255,0.85);
+  border-radius:18px;padding:15px;margin-bottom:14px;
+  border:1.5px solid rgba(210,195,175,0.12);
+  box-shadow:0 2px 12px rgba(180,160,140,0.07);
+  animation:cardIn 0.3s ease;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.card-title{font-size:14px;font-weight:700;color:#5a4a3a;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+
+.meal-section{margin-bottom:12px}
+.meal-section:last-child{margin-bottom:0}
+.meal-label{font-size:12.5px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;color:#8a7a6a}
+.meal-label .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{
+  display:flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,#fef8f3,#fff);
+  border-radius:14px;padding:5px 12px 5px 8px;font-size:12px;
+  border:1.5px solid rgba(210,195,175,0.2);
+  transition:all 0.2s ease;
+  box-shadow:0 1px 3px rgba(180,160,140,0.04);
+}
+.chip:hover{background:#fef4ec;border-color:rgba(210,195,175,0.35)}
+.chip .rm{
+  border:none;background:rgba(232,146,122,0.12);color:#e8927a;
+  cursor:pointer;border-radius:50%;width:18px;height:18px;
+  font-size:11px;padding:0;font-weight:600;line-height:18px;
+  transition:all 0.2s;display:flex;align-items:center;justify-content:center;
+}
+.chip .rm:hover{background:rgba(232,146,122,0.25)}
+
+/* 池子标签 */
+.pool-tabs{
+  display:flex;gap:0;margin-bottom:12px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.65);border:1.5px solid rgba(210,195,175,0.2);
+  overflow:hidden;padding:3px;
+  box-shadow:0 1px 5px rgba(180,160,140,0.04);
+}
+.pool-tab{
+  flex:1;padding:8px 4px;border:none;cursor:pointer;
+  font-size:12px;font-family:inherit;font-weight:500;
+  background:transparent;color:#b8a99a;
+  transition:all 0.22s ease;border-radius:11px;
+}
+.pool-tab.active{
+  font-weight:700;color:#5a4a3a;
+  background:rgba(255,255,255,0.9);
+  box-shadow:0 1px 6px rgba(180,160,140,0.08);
+}
+.pool-tab:active{transform:scale(0.97)}
+
+/* 菜品卡片 */
+.dish-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:30px}
+.dish-card{
+  background:rgba(255,255,255,0.85);
+  border:1.5px solid rgba(210,195,175,0.12);
+  border-radius:16px;padding:14px 10px;
+  cursor:pointer;text-align:center;font-family:inherit;
+  transition:all 0.22s ease;
+  box-shadow:0 1px 5px rgba(180,160,140,0.05);
+}
+.dish-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(180,160,140,0.1);border-color:rgba(212,129,107,0.18)}
+.dish-card:active{transform:scale(0.96);transition:all 0.1s}
+.dish-card.selected{background:linear-gradient(135deg,#fef6f0,#fff);border-color:rgba(212,129,107,0.35);box-shadow:0 2px 10px rgba(212,129,107,0.1)}
+.dish-emoji{font-size:28px;margin-bottom:6px}
+.dish-name{font-size:13px;font-weight:700;color:#4a3f35;margin-bottom:4px}
+.dish-tag{font-size:9px;padding:2px 8px;border-radius:10px;display:inline-block;margin:2px 2px;font-weight:500}
+
+/* 按钮 */
+.reset-btn{
+  border:none;background:rgba(255,255,255,0.85);color:#d4816b;
+  cursor:pointer;border-radius:12px;padding:6px 14px;
+  font-size:11.5px;font-family:inherit;font-weight:600;
+  border:1.5px solid rgba(212,129,107,0.15);transition:all 0.2s ease;
+}
+.reset-btn:hover{background:#fef6f0;border-color:rgba(212,129,107,0.3)}
+.reset-btn:active{transform:scale(0.97)}
+
+.random-btn{
+  border:none;
+  background:linear-gradient(135deg,#f0a58e,#e8927a);
+  color:#fff;cursor:pointer;border-radius:14px;
+  padding:10px 22px;font-size:13px;
+  font-family:inherit;font-weight:700;letter-spacing:1px;
+  transition:all 0.22s ease;
+  box-shadow:0 3px 12px rgba(232,146,122,0.22);
+}
+.random-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(232,146,122,0.32)}
+.random-btn:active{transform:scale(0.96)}
+
+/* 采购清单 */
+.list-fixed{flex-shrink:0;padding-bottom:6px}
+.summary{
+  background:linear-gradient(135deg,#f0a58e,#e8927a,#d4816b);
+  border-radius:18px;padding:18px 20px;margin:0 14px 14px;color:#fff;
+  box-shadow:0 4px 16px rgba(232,146,122,0.18);
+}
+.summary .label{font-size:12px;opacity:0.75;margin-bottom:8px;font-weight:500;letter-spacing:1px}
+.summary .nums{display:flex;gap:24px;align-items:baseline}
+.summary .big-num{font-size:30px;font-weight:700}
+.summary .small{font-size:10.5px;margin-left:3px;opacity:0.75}
+
+.list-progress{margin:0 14px 12px;display:flex;align-items:center;gap:10px}
+.list-pbar{flex:1;background:rgba(129,178,154,0.15);border-radius:50px;height:7px;overflow:hidden}
+.list-pfill{height:100%;border-radius:50px;background:linear-gradient(90deg,#a8d4c4,#81b29a);transition:width 0.5s ease}
+.list-ptext{font-size:11px;color:#81b29a;font-weight:700;white-space:nowrap}
+
+.list-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+.cat-title{font-size:13px;font-weight:700;color:#5a4a3a;margin:0 14px 8px;display:flex;align-items:center;gap:7px}
+.cat-count{font-size:10.5px;color:#b8a99a;font-weight:400}
+
+.list-card{
+  background:rgba(255,255,255,0.85);border-radius:16px;margin:0 14px 14px;
+  border:1.5px solid rgba(210,195,175,0.12);overflow:hidden;
+  box-shadow:0 1px 8px rgba(180,160,140,0.06);
+}
+.list-item{padding:11px 15px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(210,195,175,0.1);transition:all 0.2s ease}
+.list-item:last-child{border-bottom:none}
+.list-item.checked{opacity:0.3}
+.list-item.checked .item-name{text-decoration:line-through}
+
+.list-check{
+  width:22px;height:22px;border-radius:8px;
+  border:2px solid rgba(129,178,154,0.35);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all 0.22s ease;
+  background:transparent;font-size:11px;color:transparent;padding:0;
+}
+.list-check:hover{border-color:rgba(129,178,154,0.6)}
+.list-check.done{
+  border-color:#81b29a;background:linear-gradient(135deg,#a8d4c4,#81b29a);
+  color:#fff;box-shadow:0 1px 4px rgba(129,178,154,0.25);
+  animation:checkPop 0.25s ease;
+}
+@keyframes checkPop{0%{transform:scale(0.8)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+
+.list-info{flex:1;min-width:0}
+.item-name{font-size:13px;font-weight:600;transition:all 0.2s;color:#4a3f35}
+.item-sub{font-size:10.5px;color:#b8a99a;margin-top:2px}
+.item-amount{font-size:11.5px;font-weight:700;color:#d4816b;text-align:right;white-space:nowrap;flex-shrink:0}
+
+.empty{text-align:center;padding:60px 20px;color:#c4b8a8}
+
+/* 标签颜色 - 暖色马卡龙 */
+.tag-fast{background:rgba(232,146,122,0.1);color:#d4816b}
+.tag-home{background:rgba(129,178,154,0.12);color:#6a9a8a}
+.tag-hard{background:rgba(232,192,122,0.15);color:#c49a4a}
+.tag-cold{background:rgba(138,158,212,0.1);color:#7a8ab8}
+.tag-prep{background:rgba(180,160,200,0.1);color:#9a8aaa}
+.tag-stew{background:rgba(200,170,140,0.12);color:#a08a6a}
+.tag-veg{background:rgba(129,178,154,0.08);color:#6a9a8a}
+.tag-default{background:rgba(180,160,140,0.08);color:#8a7a6a}
+</style>
+</head>
+<body>
+
+<div class="top-fixed">
+<div class="header">
+<div class="header-icon">🍙</div>
+<h1>晚晚的一周食堂</h1>
+<p>选菜 · 搭配 · 一键采购</p>
+</div>
+<div class="tabs">
+<button id="tab-plan" class="active" onclick="switchTab('plan')">📋 一周总览</button>
+<button id="tab-list" onclick="switchTab('list')">🛒 采购清单 <span id="list-badge" class="badge" style="display:none">0</span></button>
+</div>
+</div>
+
+<div id="view-plan" class="scroll-area"></div>
+<div id="view-list" style="display:none;flex:1;display:none;flex-direction:column;overflow:hidden">
+<div id="list-fixed" class="list-fixed"></div>
+<div id="list-scroll" class="list-scroll"></div>
+</div>
+
+<script>
+var POOL = {
+  "早餐主食": [
+    {id:"b1",name:"燕麦粥",emoji:"🥣",ingredients:[{name:"燕麦",amount:"50g",cat:"主食"},{name:"牛奶",amount:"250ml",cat:"蛋奶"}]},
+    {id:"b2",name:"烤红薯",emoji:"🍠",ingredients:[{name:"红薯",amount:"1个",cat:"蔬菜"}]},
+    {id:"b3",name:"小笼包",emoji:"🥟",ingredients:[{name:"速冻小笼包",amount:"6个",cat:"主食"}]},
+    {id:"b4",name:"大米粥",emoji:"🍚",ingredients:[{name:"大米",amount:"半杯",cat:"主食"}]},
+    {id:"b5",name:"手抓饼+鸡蛋",emoji:"🥞",ingredients:[{name:"手抓饼",amount:"1张",cat:"主食"},{name:"鸡蛋",amount:"1个",cat:"蛋奶"}]},
+    {id:"b6",name:"面条",emoji:"🍜",ingredients:[{name:"面条",amount:"1人份",cat:"主食"},{name:"鸡蛋",amount:"1个",cat:"蛋奶"},{name:"小白菜",amount:"几棵",cat:"蔬菜"}]}
+  ],
+  "早餐蛋白质": [
+    {id:"bp1",name:"煮鸡蛋",emoji:"🥚",ingredients:[{name:"鸡蛋",amount:"2个",cat:"蛋奶"}]},
+    {id:"bp2",name:"豆浆",emoji:"🥛",ingredients:[{name:"豆浆",amount:"1杯",cat:"豆制品"}]},
+    {id:"bp3",name:"坚果",emoji:"🥜",ingredients:[{name:"混合坚果",amount:"1小把",cat:"干货"}]}
+  ],
+  "早餐青菜": [
+    {id:"bv1",name:"拍黄瓜",emoji:"🥒",tags:["凉菜"],ingredients:[{name:"黄瓜",amount:"1根",cat:"蔬菜"},{name:"蒜",amount:"2瓣",cat:"调味"},{name:"醋",amount:"1勺",cat:"调味"}]},
+    {id:"bv2",name:"拌菠菜",emoji:"🥬",tags:["凉菜"],ingredients:[{name:"菠菜",amount:"1把",cat:"蔬菜"},{name:"蒜",amount:"2瓣",cat:"调味"}]},
+    {id:"bv3",name:"拌西红柿",emoji:"🍅",tags:["凉菜"],ingredients:[{name:"西红柿",amount:"1个",cat:"蔬菜"},{name:"白糖",amount:"适量",cat:"调味"}]}
+  ],
+  "主食": [
+    {id:"s1",name:"大米饭",emoji:"🍚",ingredients:[{name:"大米",amount:"1杯",cat:"主食"}]},
+    {id:"s2",name:"杂粮饭",emoji:"🌾",ingredients:[{name:"杂粮米",amount:"1杯",cat:"主食"}]},
+    {id:"s3",name:"烤贝贝南瓜",emoji:"🎃",ingredients:[{name:"贝贝南瓜",amount:"1个",cat:"蔬菜"}]},
+    {id:"s4",name:"炒饭",emoji:"🍳",ingredients:[{name:"剩米饭",amount:"2碗",cat:"主食"},{name:"鸡蛋",amount:"1个",cat:"蛋奶"}]},
+    {id:"s5",name:"土豆泥",emoji:"🥔",ingredients:[{name:"土豆",amount:"2个",cat:"蔬菜"},{name:"牛奶",amount:"少许",cat:"蛋奶"}]},
+    {id:"s6",name:"意面",emoji:"🍝",ingredients:[{name:"意面",amount:"100g",cat:"主食"}]},
+    {id:"s7",name:"卷饼/烙馍",emoji:"🫓",ingredients:[{name:"面粉",amount:"适量",cat:"主食"}]}
+  ],
+  "蛋白质": [
+    {id:"p1",name:"手撕鸡胸肉",emoji:"🍗",tags:["提前备"],ingredients:[{name:"鸡胸肉",amount:"200g",cat:"肉类"}]},
+    {id:"p2",name:"椒麻鸡",emoji:"🌶️",tags:["硬菜"],ingredients:[{name:"鸡腿",amount:"2个",cat:"肉类"},{name:"花椒",amount:"适量",cat:"调味"},{name:"小葱",amount:"3根",cat:"调味"}]},
+    {id:"p3",name:"手撕猪心",emoji:"🫀",tags:["提前备"],ingredients:[{name:"猪心",amount:"1个",cat:"肉类"},{name:"姜",amount:"3片",cat:"调味"}]},
+    {id:"p4",name:"烤鸡腿",emoji:"🍗",tags:["提前腌"],ingredients:[{name:"鸡腿",amount:"2个",cat:"肉类"},{name:"奥尔良腌料",amount:"1包",cat:"调味"}]},
+    {id:"p5",name:"小白菜炖豆腐",emoji:"🥬",tags:["家常"],ingredients:[{name:"小白菜",amount:"1把",cat:"蔬菜"},{name:"嫩豆腐",amount:"1盒",cat:"豆制品"}]},
+    {id:"p6",name:"小白菜炖排骨",emoji:"🍖",tags:["慢炖"],ingredients:[{name:"猪排骨",amount:"300g",cat:"肉类"},{name:"小白菜",amount:"1把",cat:"蔬菜"}]},
+    {id:"p7",name:"红烧排骨",emoji:"🍖",tags:["硬菜"],ingredients:[{name:"猪小排",amount:"500g",cat:"肉类"},{name:"冰糖",amount:"适量",cat:"调味"},{name:"生抽",amount:"2勺",cat:"调味"},{name:"老抽",amount:"1勺",cat:"调味"}]},
+    {id:"p8",name:"西红柿炒鸡蛋",emoji:"🍅",tags:["快手"],ingredients:[{name:"西红柿",amount:"2个",cat:"蔬菜"},{name:"鸡蛋",amount:"3个",cat:"蛋奶"}]},
+    {id:"p9",name:"洋葱炒鸡蛋",emoji:"🧅",tags:["快手"],ingredients:[{name:"洋葱",amount:"1个",cat:"蔬菜"},{name:"鸡蛋",amount:"3个",cat:"蛋奶"}]},
+    {id:"p10",name:"丝瓜炒鸡蛋",emoji:"🥒",tags:["快手"],ingredients:[{name:"丝瓜",amount:"1根",cat:"蔬菜"},{name:"鸡蛋",amount:"2个",cat:"蛋奶"}]},
+    {id:"p11",name:"苦瓜炒鸡蛋",emoji:"🥦",tags:["快手"],ingredients:[{name:"苦瓜",amount:"1根",cat:"蔬菜"},{name:"鸡蛋",amount:"2个",cat:"蛋奶"}]},
+    {id:"p12",name:"芹菜炒肉",emoji:"🥩",tags:["家常"],ingredients:[{name:"芹菜",amount:"1把",cat:"蔬菜"},{name:"猪肉",amount:"150g",cat:"肉类"}]},
+    {id:"p13",name:"杏鲍菇炒鸡腿肉",emoji:"🍄",tags:["家常"],ingredients:[{name:"杏鲍菇",amount:"2个",cat:"蔬菜"},{name:"鸡腿肉",amount:"200g",cat:"肉类"}]},
+    {id:"p14",name:"烤杏鲍菇",emoji:"🍄",tags:["快手"],ingredients:[{name:"杏鲍菇",amount:"3个",cat:"蔬菜"},{name:"蒜",amount:"3瓣",cat:"调味"}]},
+    {id:"p15",name:"蒜蓉虾仁",emoji:"🦐",tags:["快手"],ingredients:[{name:"虾仁",amount:"200g",cat:"海鲜"},{name:"蒜",amount:"4瓣",cat:"调味"}]},
+    {id:"p16",name:"煎午餐肉",emoji:"🥓",tags:["快手"],ingredients:[{name:"午餐肉",amount:"半罐",cat:"肉类"}]},
+    {id:"p17",name:"可乐鸡翅",emoji:"🍗",tags:["硬菜"],ingredients:[{name:"鸡中翅",amount:"8个",cat:"肉类"},{name:"可乐",amount:"1罐",cat:"饮品"},{name:"生抽",amount:"2勺",cat:"调味"}]},
+    {id:"p18",name:"蒜薹炒肉",emoji:"🧄",tags:["家常"],ingredients:[{name:"蒜薹",amount:"1把",cat:"蔬菜"},{name:"猪肉",amount:"150g",cat:"肉类"}]},
+    {id:"p19",name:"土豆炖牛肉",emoji:"🥩",tags:["硬菜"],ingredients:[{name:"牛肉",amount:"300g",cat:"肉类"},{name:"土豆",amount:"2个",cat:"蔬菜"},{name:"胡萝卜",amount:"1根",cat:"蔬菜"}]},
+    {id:"p20",name:"青椒炒肉丝",emoji:"🫑",tags:["快手"],ingredients:[{name:"青椒",amount:"2个",cat:"蔬菜"},{name:"猪肉",amount:"150g",cat:"肉类"}]},
+    {id:"p21",name:"宫保鸡丁",emoji:"🥜",tags:["硬菜"],ingredients:[{name:"鸡胸肉",amount:"200g",cat:"肉类"},{name:"花生米",amount:"50g",cat:"干货"},{name:"黄瓜",amount:"1根",cat:"蔬菜"},{name:"干辣椒",amount:"8个",cat:"调味"}]},
+    {id:"p22",name:"酱牛肉",emoji:"🥩",tags:["周末卤"],ingredients:[{name:"牛腱子",amount:"500g",cat:"肉类"},{name:"酱油",amount:"适量",cat:"调味"},{name:"八角",amount:"2个",cat:"调味"}]},
+    {id:"p23",name:"煎豆腐",emoji:"🧈",tags:["快手"],ingredients:[{name:"老豆腐",amount:"1块",cat:"豆制品"},{name:"生抽",amount:"1勺",cat:"调味"}]},
+    {id:"p24",name:"蒸蛋",emoji:"🥚",tags:["快手"],ingredients:[{name:"鸡蛋",amount:"2个",cat:"蛋奶"}]}
+  ],
+  "青菜": [
+    {id:"v1",name:"清炒油麦菜",emoji:"🥬",tags:["炒青菜"],ingredients:[{name:"油麦菜",amount:"1把",cat:"蔬菜"},{name:"蒜",amount:"2瓣",cat:"调味"}]},
+    {id:"v2",name:"清炒油菜",emoji:"🥬",tags:["炒青菜"],ingredients:[{name:"油菜",amount:"1把",cat:"蔬菜"},{name:"蒜",amount:"2瓣",cat:"调味"}]},
+    {id:"v3",name:"醋熘白菜",emoji:"🥬",tags:["炒青菜"],ingredients:[{name:"白菜",amount:"半棵",cat:"蔬菜"},{name:"醋",amount:"2勺",cat:"调味"},{name:"干辣椒",amount:"3个",cat:"调味"}]},
+    {id:"v4",name:"西红柿炒西兰花",emoji:"🥦",tags:["炒青菜"],ingredients:[{name:"西兰花",amount:"1颗",cat:"蔬菜"},{name:"西红柿",amount:"1个",cat:"蔬菜"}]},
+    {id:"v5",name:"炒娃娃菜",emoji:"🥬",tags:["炒青菜"],ingredients:[{name:"娃娃菜",amount:"2棵",cat:"蔬菜"},{name:"蒜",amount:"3瓣",cat:"调味"}]},
+    {id:"v6",name:"蒜蓉秋葵",emoji:"🫛",tags:["炒青菜"],ingredients:[{name:"秋葵",amount:"200g",cat:"蔬菜"},{name:"蒜",amount:"3瓣",cat:"调味"}]},
+    {id:"v7",name:"清炒莴笋",emoji:"🥬",tags:["炒青菜"],ingredients:[{name:"莴笋",amount:"1根",cat:"蔬菜"}]},
+    {id:"v8",name:"凉拌木耳",emoji:"🍄",tags:["凉菜"],ingredients:[{name:"木耳",amount:"1把",cat:"干货"},{name:"蒜",amount:"2瓣",cat:"调味"},{name:"醋",amount:"1勺",cat:"调味"}]},
+    {id:"v9",name:"凉拌腐竹",emoji:"🫘",tags:["凉菜"],ingredients:[{name:"腐竹",amount:"100g",cat:"豆制品"},{name:"黄瓜",amount:"半根",cat:"蔬菜"},{name:"辣椒油",amount:"1勺",cat:"调味"}]},
+    {id:"v10",name:"蒜蓉蒸茄子",emoji:"🍆",tags:["炒青菜"],ingredients:[{name:"茄子",amount:"2根",cat:"蔬菜"},{name:"蒜",amount:"4瓣",cat:"调味"}]},
+    {id:"v11",name:"干煸四季豆",emoji:"🫛",tags:["炒青菜"],ingredients:[{name:"四季豆",amount:"300g",cat:"蔬菜"},{name:"蒜",amount:"3瓣",cat:"调味"},{name:"干辣椒",amount:"5个",cat:"调味"}]},
+    {id:"v12",name:"清炒藕片",emoji:"🪷",tags:["炒青菜"],ingredients:[{name:"莲藕",amount:"1节",cat:"蔬菜"},{name:"醋",amount:"少许",cat:"调味"}]}
+  ]
+};
+
+var DAYS=["周一","周二","周三","周四","周五","周六","周日"];
+var MEAL_TYPES=["早餐","午饭"];
+var mealEmoji={"早餐":"🌅","午饭":"☀️"};
+var mealColor={"早餐":"#e8c07a","午饭":"#d4816b"};
+var dayColors=["#d4816b","#c9a07a","#81b29a","#8a9ed4","#e8c07a","#d4816b","#81b29a"];
+
+var catOrder=["肉类","海鲜","蔬菜","蛋奶","豆制品","干货","主食","饮品","调味"];
+var catEmoji={"蔬菜":"🥬","肉类":"🥩","海鲜":"🦐","蛋奶":"🥚","豆制品":"🫘","干货":"🍄","主食":"🍚","饮品":"🥤","调味":"🧂"};
+
+var tagClassMap={"快手":"tag-fast","家常":"tag-home","硬菜":"tag-hard","凉菜":"tag-cold","提前备":"tag-prep","提前腌":"tag-prep","慢炖":"tag-stew","周末卤":"tag-stew","炒青菜":"tag-veg"};
+
+var plan={};
+DAYS.forEach(function(d){
+  plan[d]={"早餐":{"早餐主食":[],"早餐蛋白质":[],"早餐青菜":[]},"午饭":{"主食":[],"蛋白质":[],"青菜":[]}};
+});
+
+var editDay=null,editMeal="午饭",activePool="蛋白质",currentTab="plan",checkedItems={};
+
+function initDefault(){
+  var rec={"周一":{"早餐":{"早餐主食":["b1"],"早餐蛋白质":["bp1"],"早餐青菜":["bv1"]},"午饭":{"主食":["s1"],"蛋白质":["p8"],"青菜":["v1"]}},"周二":{"早餐":{"早餐主食":["b5"],"早餐蛋白质":["bp2"],"早餐青菜":[]},"午饭":{"主食":["s2"],"蛋白质":["p13"],"青菜":["v3"]}},"周三":{"早餐":{"早餐主食":["b6"],"早餐蛋白质":["bp1"],"早餐青菜":["bv2"]},"午饭":{"主食":["s1"],"蛋白质":["p4"],"青菜":["v5"]}},"周四":{"早餐":{"早餐主食":["b1"],"早餐蛋白质":["bp3"],"早餐青菜":["bv3"]},"午饭":{"主食":["s3"],"蛋白质":["p12"],"青菜":["v4"]}},"周五":{"早餐":{"早餐主食":["b3"],"早餐蛋白质":["bp1"],"早餐青菜":[]},"午饭":{"主食":["s1"],"蛋白质":["p17"],"青菜":["v6"]}},"周六":{"早餐":{"早餐主食":["b4"],"早餐蛋白质":["bp2"],"早餐青菜":["bv1"]},"午饭":{"主食":["s1"],"蛋白质":["p7"],"青菜":["v2"]}},"周日":{"早餐":{"早餐主食":["b2"],"早餐蛋白质":["bp1"],"早餐青菜":[]},"午饭":{"主食":["s4"],"蛋白质":["p21"],"青菜":["v8"]}}};
+  DAYS.forEach(function(day){MEAL_TYPES.forEach(function(meal){
+    var pools=meal==="早餐"?["早餐主食","早餐蛋白质","早餐青菜"]:["主食","蛋白质","青菜"];
+    pools.forEach(function(pool){
+      plan[day][meal][pool]=[];
+      if(rec[day]&&rec[day][meal]&&rec[day][meal][pool]){
+        rec[day][meal][pool].forEach(function(id){
+          var dish=POOL[pool].find(function(d){return d.id===id;});
+          if(dish) plan[day][meal][pool].push(JSON.parse(JSON.stringify(dish)));
+        });
+      }
+    });
+  });});
+}
+initDefault();
+
+function switchTab(t){
+  currentTab=t;
+  document.getElementById("tab-plan").className=t==="plan"?"active":"";
+  document.getElementById("tab-list").className=t==="list"?"active":"";
+  document.getElementById("view-plan").style.display=t==="plan"?"":"none";
+  var vl=document.getElementById("view-list");vl.style.display=t==="list"?"flex":"none";
+  if(t==="plan")renderPlan();if(t==="list")renderList();
+}
+function enterEdit(day,meal){editDay=day;editMeal=meal||"午饭";activePool=meal==="早餐"?"早餐主食":"蛋白质";renderPlan();}
+function exitEdit(){editDay=null;renderPlan();}
+function setPool(p){activePool=p;renderPlan();}
+function addDish(poolName,id){if(!editDay)return;var dish=POOL[poolName].find(function(d){return d.id===id;});if(dish)plan[editDay][editMeal][poolName].push(JSON.parse(JSON.stringify(dish)));renderPlan();updateBadge();}
+function removeDish(day,meal,pool,idx){plan[day][meal][pool].splice(idx,1);renderPlan();updateBadge();}
+
+function randomMeal(day,meal){
+  var pools=meal==="早餐"?["早餐主食","早餐蛋白质","早餐青菜"]:["主食","蛋白质","青菜"];
+  pools.forEach(function(pool){plan[day][meal][pool]=[];var src=POOL[pool];if(src.length>0){var idx=Math.floor(Math.random()*src.length);plan[day][meal][pool].push(JSON.parse(JSON.stringify(src[idx])));}});
+  renderPlan();updateBadge();
+}
+function randomAll(){DAYS.forEach(function(day){MEAL_TYPES.forEach(function(meal){randomMeal(day,meal);});});renderPlan();updateBadge();}
+function resetPlan(){initDefault();editDay=null;checkedItems={};renderPlan();updateBadge();}
+function clearDay(day){MEAL_TYPES.forEach(function(meal){var pools=meal==="早餐"?["早餐主食","早餐蛋白质","早餐青菜"]:["主食","蛋白质","青菜"];pools.forEach(function(p){plan[day][meal][p]=[];});});renderPlan();updateBadge();}
+function toggleCheck(key){checkedItems[key]=!checkedItems[key];renderList();}
+
+function updateBadge(){
+  var map={};
+  DAYS.forEach(function(day){MEAL_TYPES.forEach(function(meal){
+    var pools=meal==="早餐"?["早餐主食","早餐蛋白质","早餐青菜"]:["主食","蛋白质","青菜"];
+    pools.forEach(function(pool){plan[day][meal][pool].forEach(function(dish){if(dish.ingredients)dish.ingredients.forEach(function(ing){map[ing.cat+"||"+ing.name]=1;});});});
+  });});
+  var badge=document.getElementById("list-badge");var count=Object.keys(map).length;
+  if(count>0){badge.style.display="inline";badge.textContent=count;}else{badge.style.display="none";}
+}
+
+function getTagClass(tag){
+  return tagClassMap[tag]||"tag-default";
+}
+
+function renderSchedule(){
+  var h='<div class="schedule"><table class="sch-table"><tr><th></th>';
+  DAYS.forEach(function(day,i){h+='<th style="color:'+dayColors[i]+'" onclick="enterEdit(\''+day+'\',\'午饭\')">'+day+'</th>';});
+  h+='</tr>';
+  MEAL_TYPES.forEach(function(meal){
+    h+='<tr><td class="sch-meal-hdr" style="color:'+mealColor[meal]+'">'+mealEmoji[meal]+'</td>';
+    DAYS.forEach(function(day){
+      var pools=meal==="早餐"?["早餐主食","早餐蛋白质","早餐青菜"]:["主食","蛋白质","青菜"];
+      var dishes=[];pools.forEach(function(p){plan[day][meal][p].forEach(function(d){dishes.push(d);});});
+      h+='<td class="sch-cell" onclick="enterEdit(\''+day+'\',\''+meal+'\')">';
+      if(dishes.length>0){dishes.forEach(function(d){h+='<div class="sch-dish"><div class="sch-dish-emoji">'+d.emoji+'</div><div class="sch-dish-name">'+d.name+'</div></div>';});}
+      else{h+='<div class="sch-empty">+</div>';}
+      h+='</td>';
+    });h+='</tr>';
+  });
+  h+='</table><div class="sch-footer">';
+  h+='<div style="font-size:11px;color:#c4b8a8;margin-bottom:8px;letter-spacing:1px">点击格子编辑菜品 ✨</div>';
+  h+='<button class="random-btn" onclick="randomAll()" style="width:auto;display:inline-block;padding:8px 20px;margin:0 4px;font-size:13px">🎲 随机一周</button>';
+  h+='<button class="reset-btn" onclick="resetPlan()" style="padding:6px 14px;font-size:11px;margin-left:4px">🔄 恢复默认</button>';
+  h+='</div></div>';return h;
+}
+
+function renderEditView(){
+  var day=editDay,di=DAYS.indexOf(day),meal=editMeal;
+  var pools=meal==="早餐"?["早餐主食","早餐蛋白质","早餐青菜"]:["主食","蛋白质","青菜"];
+  var poolLabels=meal==="早餐"?{"早餐主食":"🍚 主食","早餐蛋白质":"🥚 蛋白质","早餐青菜":"🥬 青菜"}:{"主食":"🍚 主食","蛋白质":"🥩 蛋白质","青菜":"🥬 青菜"};
+  var poolColors=meal==="早餐"?{"早餐主食":"#e8c07a","早餐蛋白质":"#d4816b","早餐青菜":"#81b29a"}:{"主食":"#e8c07a","蛋白质":"#d4816b","青菜":"#81b29a"};
+
+  var h='<div class="mixer-panel">';
+  h+='<button class="back-btn" onclick="exitEdit()">← 返回总览</button>';
+
+  h+='<div class="pool-tabs" style="margin-bottom:12px">';
+  MEAL_TYPES.forEach(function(m){
+    var cls=editMeal===m?"pool-tab active":"pool-tab";
+    var bg=editMeal===m?mealColor[m]+"18":"transparent";
+    var color=editMeal===m?mealColor[m]:"#b8a99a";
+    h+='<button class="'+cls+'" style="background:'+bg+';color:'+color+'" onclick="editMeal=\''+m+'\';activePool=\''+(m==="早餐"?"早餐主食":"蛋白质")+'\';renderPlan()">'+mealEmoji[m]+' '+m+'</button>';
+  });
+  h+='</div>';
+
+  h+='<div class="card"><div class="card-title"><span style="color:'+dayColors[di]+'">'+day+' · '+mealEmoji[meal]+' '+meal+'</span>';
+  h+='<div><button class="reset-btn" onclick="randomMeal(\''+day+'\',\''+meal+'\')" style="margin-right:5px">🎲 随机</button>';
+  h+='<button class="reset-btn" onclick="clearDay(\''+day+'\')">清空</button></div></div>';
+
+  pools.forEach(function(pool){
+    var dishes=plan[day][meal][pool];
+    h+='<div class="meal-section"><div class="meal-label"><span class="dot" style="background:'+poolColors[pool]+'"></span>'+poolLabels[pool]+'</div>';
+    if(dishes.length>0){h+='<div class="chips">';dishes.forEach(function(dish,idx){
+      h+='<div class="chip"><span>'+dish.emoji+'</span><span style="font-weight:600">'+dish.name+'</span>';
+      h+='<button class="rm" onclick="removeDish(\''+day+'\',\''+meal+'\',\''+pool+'\','+idx+')">×</button></div>';
+    });h+='</div>';}else{h+='<div style="font-size:12px;color:#d0c4b8;padding:4px 0">还没选 ~</div>';}
+    h+='</div>';
+  });
+  h+='</div>';
+
+  h+='<div class="pool-tabs">';
+  pools.forEach(function(p){
+    var cls=activePool===p?"pool-tab active":"pool-tab";
+    var bg=activePool===p?poolColors[p]+"18":"transparent";
+    var color=activePool===p?poolColors[p]:"#b8a99a";
+    h+='<button class="'+cls+'" style="background:'+bg+';color:'+color+'" onclick="setPool(\''+p+'\')">'+poolLabels[p]+'</button>';
+  });
+  h+='</div>';
+
+  h+='<div class="dish-grid">';
+  var src=POOL[activePool]||[];
+  src.forEach(function(dish){
+    var isSelected=plan[day][meal][activePool].some(function(d){return d.id===dish.id;});
+    h+='<button class="dish-card'+(isSelected?' selected':'')+'" onclick="addDish(\''+activePool+'\',\''+dish.id+'\')">';
+    h+='<div class="dish-emoji">'+dish.emoji+'</div><div class="dish-name">'+dish.name+'</div>';
+    if(dish.tags){h+='<div>';dish.tags.forEach(function(t){h+='<span class="dish-tag '+getTagClass(t)+'">'+t+'</span>';});h+='</div>';}
+    h+='</button>';
+  });
+  h+='</div></div>';return h;
+}
+
+function renderPlan(){document.getElementById("view-plan").innerHTML=editDay?renderEditView():renderSchedule();}
+
+function renderList(){
+  var totalCount=0,map={},allKeys=[];
+  DAYS.forEach(function(day){MEAL_TYPES.forEach(function(meal){
+    var pools=meal==="早餐"?["早餐主食","早餐蛋白质","早餐青菜"]:["主食","蛋白质","青菜"];
+    pools.forEach(function(pool){plan[day][meal][pool].forEach(function(dish){
+      totalCount++;
+      if(dish.ingredients)dish.ingredients.forEach(function(ing){
+        var key=ing.cat+"||"+ing.name;
+        if(!map[key]){map[key]={name:ing.name,amount:ing.amount,cat:ing.cat,count:1,dishes:[dish.name]};allKeys.push(key);}
+        else{map[key].count++;if(map[key].dishes.indexOf(dish.name)===-1)map[key].dishes.push(dish.name);}
+      });
+    });});
+  });});
+
+  var fixedH="",scrollH="";
+  if(totalCount===0){
+    scrollH='<div class="empty"><div style="font-size:48px;margin-bottom:16px">🛒</div><div style="font-size:15px;font-weight:600;margin-bottom:6px">还没选菜呢</div><div style="font-size:13px">先去排餐计划选好每天吃什么吧 ~</div></div>';
+  }else{
+    var totalIng=allKeys.length,checkedCount=0;
+    allKeys.forEach(function(k){if(checkedItems[k])checkedCount++;});
+    fixedH+='<div class="summary"><div class="label">本周采购总览</div>';
+    fixedH+='<div class="nums"><div><span class="big-num">'+totalCount+'</span><span class="small">道菜</span></div>';
+    fixedH+='<div><span class="big-num">'+totalIng+'</span><span class="small">种食材</span></div></div></div>';
+    fixedH+='<div class="list-progress"><div class="list-pbar"><div class="list-pfill" style="width:'+Math.round(checkedCount/totalIng*100)+'%"></div></div>';
+    fixedH+='<div class="list-ptext">'+checkedCount+'/'+totalIng+' 已买</div></div>';
+
+    var byCat={};allKeys.forEach(function(k){var item=map[k];if(!byCat[item.cat])byCat[item.cat]=[];byCat[item.cat].push({key:k,data:item});});
+    catOrder.forEach(function(cat){
+      if(!byCat[cat])return;var items=byCat[cat];
+      scrollH+='<div class="cat-title"><span>'+(catEmoji[cat]||"📦")+'</span><span>'+cat+'</span><span class="cat-count">('+items.length+'种)</span></div>';
+      scrollH+='<div class="list-card">';
+      items.forEach(function(obj){
+        var item=obj.data,key=obj.key,done=checkedItems[key];
+        scrollH+='<div class="list-item'+(done?" checked":"")+'">';
+        scrollH+='<button class="list-check'+(done?" done":"")+'" onclick="toggleCheck(\''+key+'\')">'+(done?"✓":"")+'</button>';
+        scrollH+='<div class="list-info"><div class="item-name">'+item.name+'</div>';
+        scrollH+='<div class="item-sub">用于：'+item.dishes.join("、")+'</div></div>';
+        scrollH+='<div class="item-amount">'+item.amount+(item.count>1?" ×"+item.count:"")+'</div></div>';
+      });scrollH+='</div>';
+    });scrollH+='<div style="height:30px"></div>';
+  }
+  document.getElementById("list-fixed").innerHTML=fixedH;
+  document.getElementById("list-scroll").innerHTML=scrollH;
+}
+
+renderPlan();updateBadge();
+</script>
+</body>
+</html>
