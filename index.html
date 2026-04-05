@@ -63,9 +63,9 @@ body::before{
 .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1}
 
 /* 课表 */
-.schedule{margin:0 4px;display:flex;flex-direction:column}
-.sch-table{width:100%;border-collapse:separate;border-spacing:3px;table-layout:fixed;margin-top:-2px}
-.sch-table td,.sch-table th{vertical-align:top}
+.schedule{margin:0 4px;display:flex;flex-direction:column;height:100%}
+.sch-table{width:100%;border-collapse:separate;border-spacing:3px;flex:1;table-layout:fixed;margin-top:-2px}
+.sch-table td,.sch-table th{vertical-align:middle}
 .sch-table th{
   font-size:11px;font-weight:700;padding:4px 1px;text-align:center;
   cursor:pointer;border-radius:10px;transition:all 0.2s ease;
@@ -79,7 +79,7 @@ body::before{
 .sch-cell{
   background:rgba(255,255,255,0.8);
   border-radius:14px;
-  padding:5px 3px;cursor:pointer;
+  padding:6px 4px;cursor:pointer;
   border:1.5px solid rgba(210,195,175,0.15);
   transition:all 0.22s ease;text-align:center;
   vertical-align:middle;
@@ -92,7 +92,7 @@ body::before{
 }
 .sch-cell:active{transform:scale(0.97);transition:all 0.1s}
 
-.sch-dish{padding:2px 0;text-align:center}
+.sch-dish{padding:5px 0 5px;text-align:center}
 .sch-dish-emoji{font-size:15px;line-height:1.2}
 .sch-dish-name{font-size:8px;color:#7a6a5a;font-weight:500;line-height:1.2;word-break:break-all;max-width:100%;margin-top:1px}
 .sch-empty{font-size:14px;color:#ddd0c4;padding:6px 0}
