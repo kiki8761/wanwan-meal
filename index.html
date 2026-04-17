@@ -469,7 +469,10 @@ function renderEditView(){
   var poolColors=meal==="早餐"?{"早餐主食":"#e8c07a","早餐蛋白质":"#d4816b","早餐青菜":"#81b29a"}:{"主食":"#e8c07a","蛋白质":"#d4816b","青菜":"#81b29a"};
 
   var h='<div class="mixer-panel">';
-  h+='<button class="back-btn" onclick="exitEdit()">← 返回总览</button>';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+  h+='<button class="back-btn" onclick="exitEdit()" style="margin-bottom:0">← 返回总览</button>';
+  h+='<span style="color:'+dayColors[di]+';font-size:15px;font-weight:700;letter-spacing:2px">'+day+'</span>';
+  h+='</div>';
 
   h+='<div class="pool-tabs" style="margin-bottom:12px">';
   MEAL_TYPES.forEach(function(m){
@@ -480,7 +483,7 @@ function renderEditView(){
   });
   h+='</div>';
 
-  h+='<div class="card"><div class="card-title"><span style="color:'+dayColors[di]+'">'+day+' · '+mealEmoji[meal]+' '+meal+'</span>';
+  h+='<div class="card"><div class="card-title" style="justify-content:flex-end">';
   h+='<div><button class="reset-btn" onclick="randomMeal(\''+day+'\',\''+meal+'\')" style="margin-right:5px">🎲 随机</button>';
   h+='<button class="reset-btn" onclick="clearDay(\''+day+'\')">清空</button></div></div>';
 
