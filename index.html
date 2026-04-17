@@ -26,11 +26,12 @@ body::before{
 
 .top-fixed{flex-shrink:0;position:relative;z-index:1}
 
-.header{text-align:center;padding:14px 20px 4px;position:relative}
+.header{text-align:center;padding:12px 20px 2px;position:relative}
 .header-icon{font-size:32px;display:inline-block;animation:float 3.5s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .header h1{font-size:19px;font-weight:700;color:#d4816b;margin:5px 0 2px;letter-spacing:2px}
-.header p{font-size:11px;color:#b8a99a;letter-spacing:2px;font-weight:400}
+.header p.subtitle{font-size:11px;color:#b8a99a;letter-spacing:2px;font-weight:400}
+.header p.tagline{font-size:10.5px;color:#c4b8a8;letter-spacing:0.3px;font-weight:400;margin-top:3px;opacity:0.9}
 
 /* 标签栏 */
 .tabs{
@@ -53,12 +54,28 @@ body::before{
   box-shadow:0 2px 8px rgba(212,129,107,0.12);
 }
 .tabs button:active{transform:scale(0.97)}
+.tabs button{position:relative}
 .badge{
   margin-left:4px;font-size:9px;
-  background:linear-gradient(135deg,#f0a58e,#e8927a);
+  background:linear-gradient(135deg,#7da5cc,#6B94BC);
   color:#fff;border-radius:50px;padding:2px 7px;font-weight:700;
-  box-shadow:0 1px 4px rgba(240,165,142,0.25);
+  box-shadow:0 1px 4px rgba(107,148,188,0.3);
 }
+.hint-dot{
+  display:none;
+  position:absolute;top:6px;right:8px;
+  width:7px;height:7px;border-radius:50%;
+  background:#6B94BC;
+  box-shadow:0 0 0 2.5px rgba(107,148,188,0.22);
+  animation:dot-pulse 1.8s ease-in-out infinite;
+  pointer-events:none;z-index:3;
+}
+#list-badge[style*="none"] ~ .hint-dot{display:inline-block}
+@keyframes dot-pulse{
+  0%,100%{opacity:0.85;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.15)}
+}
+#tab-list.active .hint-dot{display:none}
 
 .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1}
 
@@ -278,13 +295,14 @@ body::before{
 
 <div class="top-fixed">
 <div class="header">
-<div class="header-icon">🍚</div>
+<div class="header-icon">🧺</div>
 <h1>kiki的一周食堂</h1>
-<p>选菜 · 搭配 · 一键采购</p>
+<p class="subtitle">选菜 · 生成清单 · 一键采购</p>
+<p class="tagline">选完一周菜品，一键生成采购清单，带着去超市就行</p>
 </div>
 <div class="tabs">
 <button id="tab-plan" class="active" onclick="switchTab('plan')">📋 一周总览</button>
-<button id="tab-list" onclick="switchTab('list')">🛒 采购清单 <span id="list-badge" class="badge" style="display:none">0</span></button>
+<button id="tab-list" onclick="switchTab('list')">🛒 采购清单 <span id="list-badge" class="badge" style="display:none">0</span><span class="hint-dot"></span></button>
 </div>
 </div>
 
