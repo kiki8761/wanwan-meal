@@ -135,7 +135,6 @@ body::before{
   background:linear-gradient(135deg,#fef8f3,#fff);
   border-radius:14px;padding:5px 12px 5px 8px;font-size:12px;
   border:1.5px solid rgba(210,195,175,0.2);
-  transition:all 0.2s ease;
   box-shadow:0 1px 3px rgba(180,160,140,0.04);
 }
 .chip:hover{background:#fef4ec;border-color:rgba(210,195,175,0.35)}
@@ -143,7 +142,7 @@ body::before{
   border:none;background:rgba(232,146,122,0.12);color:#e8927a;
   cursor:pointer;border-radius:50%;width:18px;height:18px;
   font-size:11px;padding:0;font-weight:600;line-height:18px;
-  transition:all 0.2s;display:flex;align-items:center;justify-content:center;
+  display:flex;align-items:center;justify-content:center;
 }
 .chip .rm:hover{background:rgba(232,146,122,0.25)}
 
@@ -270,7 +269,8 @@ body::before{
 .tag-stew{background:rgba(200,170,140,0.12);color:#a08a6a}
 .tag-veg{background:rgba(129,178,154,0.08);color:#6a9a8a}
 .tag-default{background:rgba(180,160,140,0.08);color:#8a7a6a}
-.icp{position:fixed;left:50%;transform:translateX(-50%);bottom:4px;font-size:10px;color:#999;text-decoration:none;z-index:9999;background:rgba(255,255,255,0.75);padding:2px 8px;border-radius:4px;backdrop-filter:blur(4px)}
+.icp-wrap{text-align:center;padding:18px 0 24px}
+.icp{font-size:11px;color:#999;text-decoration:none;padding:4px 10px;border-radius:4px;background:rgba(255,255,255,0.5)}
 .icp:hover{color:#666}
 </style>
 </head>
@@ -457,7 +457,9 @@ function renderSchedule(){
   h+='<div style="font-size:11px;color:#c4b8a8;margin-bottom:8px;letter-spacing:1px">点击格子编辑菜品 ✨</div>';
   h+='<button class="random-btn" onclick="randomAll()" style="width:auto;display:inline-block;padding:8px 20px;margin:0 4px;font-size:13px">🎲 随机一周</button>';
   h+='<button class="reset-btn" onclick="resetPlan()" style="padding:6px 14px;font-size:11px;margin-left:4px">🔄 恢复默认</button>';
-  h+='</div></div>';return h;
+  h+='</div></div>';
+  h+='<div class="icp-wrap"><a class="icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2026018722号</a></div>';
+  return h;
 }
 
 function renderEditView(){
@@ -511,7 +513,9 @@ function renderEditView(){
     if(dish.tags){h+='<div>';dish.tags.forEach(function(t){h+='<span class="dish-tag '+getTagClass(t)+'">'+t+'</span>';});h+='</div>';}
     h+='</button>';
   });
-  h+='</div></div>';return h;
+  h+='</div></div>';
+  h+='<div class="icp-wrap"><a class="icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2026018722号</a></div>';
+  return h;
 }
 
 function renderPlan(){document.getElementById("view-plan").innerHTML=editDay?renderEditView():renderSchedule();}
@@ -555,14 +559,22 @@ function renderList(){
         scrollH+='<div class="item-sub">用于：'+item.dishes.join("、")+'</div></div>';
         scrollH+='<div class="item-amount">'+item.amount+(item.count>1?" ×"+item.count:"")+'</div></div>';
       });scrollH+='</div>';
-    });scrollH+='<div style="height:30px"></div>';
+    });scrollH+='<div class="icp-wrap"><a class="icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2026018722号</a></div>';
   }
   document.getElementById("list-fixed").innerHTML=fixedH;
   document.getElementById("list-scroll").innerHTML=scrollH;
 }
 
 renderPlan();updateBadge();
+
+document.addEventListener('gesturestart',function(e){e.preventDefault();},{passive:false});
+document.addEventListener('gesturechange',function(e){e.preventDefault();},{passive:false});
+var _lastTapTs=0;
+document.addEventListener('touchend',function(e){
+  var now=Date.now();
+  if(now-_lastTapTs<=350){e.preventDefault();}
+  _lastTapTs=now;
+},{passive:false});
 </script>
-<a class="icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2026018722号</a>
 </body>
 </html>
