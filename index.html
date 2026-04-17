@@ -6,7 +6,7 @@
 <title>kiki的一周食堂</title>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;touch-action:manipulation}
 html,body{height:100%;overflow:hidden}
 body{
   background:#faf6f1;
@@ -120,9 +120,7 @@ body::before{
   border-radius:18px;padding:15px;margin-bottom:14px;
   border:1.5px solid rgba(210,195,175,0.12);
   box-shadow:0 2px 12px rgba(180,160,140,0.07);
-  animation:cardIn 0.3s ease;
 }
-@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 .card-title{font-size:14px;font-weight:700;color:#5a4a3a;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
 
@@ -413,7 +411,7 @@ function switchTab(t){
 function enterEdit(day,meal){editDay=day;editMeal=meal||"午饭";activePool=meal==="早餐"?"早餐主食":"蛋白质";renderPlan();}
 function exitEdit(){editDay=null;renderPlan();}
 function setPool(p){activePool=p;renderPlan();}
-function addDish(poolName,id){if(!editDay)return;var dish=POOL[poolName].find(function(d){return d.id===id;});if(dish)plan[editDay][editMeal][poolName].push(JSON.parse(JSON.stringify(dish)));renderPlan();updateBadge();}
+function addDish(poolName,id){if(!editDay)return;var arr=plan[editDay][editMeal][poolName];var existIdx=-1;for(var i=0;i<arr.length;i++){if(arr[i].id===id){existIdx=i;break;}}if(existIdx>-1){arr.splice(existIdx,1);}else{var dish=POOL[poolName].find(function(d){return d.id===id;});if(dish)arr.push(JSON.parse(JSON.stringify(dish)));}renderPlan();updateBadge();}
 function removeDish(day,meal,pool,idx){plan[day][meal][pool].splice(idx,1);renderPlan();updateBadge();}
 
 function randomMeal(day,meal){
