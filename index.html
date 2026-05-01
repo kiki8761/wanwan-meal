@@ -290,7 +290,7 @@ body::before{
 .tag-stew{background:rgba(200,170,140,0.12);color:#a08a6a}
 .tag-veg{background:rgba(129,178,154,0.08);color:#6a9a8a}
 .tag-default{background:rgba(180,160,140,0.08);color:#8a7a6a}
-.icp-wrap{text-align:center;padding:18px 0 24px}
+.icp-wrap{text-align:center;padding:18px 0 24px;display:flex;flex-direction:column;align-items:center;gap:6px}
 .icp{font-size:11px;color:#999;text-decoration:none;padding:4px 10px;border-radius:4px;background:rgba(255,255,255,0.5)}
 .icp:hover{color:#666}
 </style>
@@ -480,7 +480,7 @@ function renderSchedule(){
   h+='<button class="random-btn" onclick="randomAll()" style="width:auto;display:inline-block;padding:8px 20px;margin:0 4px;font-size:13px">🎲 随机一周</button>';
   h+='<button class="reset-btn" onclick="resetPlan()" style="padding:6px 14px;font-size:11px;margin-left:4px">🔄 恢复默认</button>';
   h+='</div></div>';
-  h+='<div class="icp-wrap"><a class="icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2026018722号</a></div>';
+  h+='<div class="icp-wrap"><a class="icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2026018722号-1</a><a class="icp" href="https://beian.mps.gov.cn/#/query/webSearch?code=11011502039877" target="_blank" rel="noopener">京公网安备11011502039877号</a></div>';
   return h;
 }
 
@@ -539,7 +539,7 @@ function renderEditView(){
     h+='</button>';
   });
   h+='</div></div>';
-  h+='<div class="icp-wrap"><a class="icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2026018722号</a></div>';
+  h+='<div class="icp-wrap"><a class="icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2026018722号-1</a><a class="icp" href="https://beian.mps.gov.cn/#/query/webSearch?code=11011502039877" target="_blank" rel="noopener">京公网安备11011502039877号</a></div>';
   return h;
 }
 
@@ -584,7 +584,7 @@ function renderList(){
         scrollH+='<div class="item-sub">用于：'+item.dishes.join("、")+'</div></div>';
         scrollH+='<div class="item-amount">'+item.amount+(item.count>1?" ×"+item.count:"")+'</div></div>';
       });scrollH+='</div>';
-    });scrollH+='<div class="icp-wrap"><a class="icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2026018722号</a></div>';
+    });scrollH+='<div class="icp-wrap"><a class="icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2026018722号-1</a><a class="icp" href="https://beian.mps.gov.cn/#/query/webSearch?code=11011502039877" target="_blank" rel="noopener">京公网安备11011502039877号</a></div>';
   }
   document.getElementById("list-fixed").innerHTML=fixedH;
   document.getElementById("list-scroll").innerHTML=scrollH;
