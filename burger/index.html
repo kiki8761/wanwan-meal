@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今天夹什么 · 晚晚汉堡中台</title>
+<style>
+  :root{
+    --bun:#E8A33D; --bun-dark:#C9852A; --brown:#5C3A1E;
+    --cheese:#FFC93C; --lettuce:#7CB342; --tomato:#D7503C;
+    --cream:#FFF3DF; --paper:#FFFDF8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:var(--cream);
+    color:var(--brown);
+    min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;
+    padding:28px 18px 48px;
+    background-image:radial-gradient(#f0dfc0 1.2px, transparent 1.2px);
+    background-size:26px 26px;
+  }
+  header{text-align:center;margin-bottom:18px}
+  .eyebrow{
+    font-size:12px;letter-spacing:.35em;color:var(--bun-dark);
+    text-transform:uppercase;margin-bottom:6px;
+  }
+  h1{font-size:30px;font-weight:900;letter-spacing:.04em}
+  h1 .dot{color:var(--tomato)}
+  .sub{font-size:13px;color:#9a7a52;margin-top:6px}
+
+  /* 汉堡舞台 */
+  .stage{
+    width:min(320px,86vw);
+    background:var(--paper);
+    border:3px solid var(--brown);
+    border-radius:24px;
+    box-shadow:6px 6px 0 var(--brown);
+    padding:26px 20px 20px;
+    display:flex;flex-direction:column;align-items:center;
+  }
+  .burger{
+    display:flex;flex-direction:column-reverse;align-items:center;
+    min-height:210px;justify-content:flex-start;
+    width:100%;
+  }
+  .layer{
+    width:78%;
+    height:26px;
+    border:2.5px solid var(--brown);
+    border-radius:10px;
+    margin-top:-6px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12.5px;font-weight:700;color:var(--brown);
+    background:#eee;
+    animation:drop .45s cubic-bezier(.2,1.4,.4,1) both;
+    white-space:nowrap;
+    position:relative;
+    z-index:1;
+  }
+  @keyframes drop{
+    from{transform:translateY(-46px) scale(.85);opacity:0}
+    to{transform:translateY(0) scale(1);opacity:1}
+  }
+  .bun-bottom{
+    width:84%;height:30px;
+    background:linear-gradient(var(--bun),var(--bun-dark));
+    border:2.5px solid var(--brown);
+    border-radius:8px 8px 16px 16px;
+    z-index:0;
+  }
+  .bun-top{
+    width:88%;height:54px;
+    background:linear-gradient(#F2B453,var(--bun));
+    border:2.5px solid var(--brown);
+    border-radius:50px 50px 12px 12px;
+    margin-top:-6px;
+    position:relative;
+    z-index:2;
+    animation:drop .5s cubic-bezier(.2,1.4,.4,1) both;
+  }
+  .bun-top i{
+    position:absolute;width:7px;height:4px;background:#FFF3DF;
+    border-radius:50%;transform:rotate(-15deg);
+  }
+  .empty-hint{
+    color:#c4a071;font-size:13px;text-align:center;line-height:1.8;
+    padding:60px 0;
+  }
+
+  .verdict{
+    min-height:44px;
+    margin-top:16px;text-align:center;
+    font-size:13.5px;line-height:1.7;color:#8a6a42;
+    padding:0 6px;
+  }
+  .verdict b{color:var(--tomato)}
+
+  /* 控制区 */
+  .controls{margin-top:22px;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .mode{display:flex;gap:8px}
+  .mode button{
+    border:2.5px solid var(--brown);background:var(--paper);
+    color:var(--brown);font-weight:700;font-size:13px;
+    padding:7px 14px;border-radius:50px;cursor:pointer;
+    transition:transform .1s;
+  }
+  .mode button.on{background:var(--cheese)}
+  .mode button:active{transform:scale(.94)}
+  .go{
+    font-size:20px;font-weight:900;letter-spacing:.1em;
+    background:var(--tomato);color:#fff;
+    border:3px solid var(--brown);
+    border-radius:60px;
+    padding:16px 52px;
+    box-shadow:4px 4px 0 var(--brown);
+    cursor:pointer;
+    transition:transform .12s, box-shadow .12s;
+  }
+  .go:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--brown)}
+  .go:disabled{opacity:.55}
+  .hint{font-size:11.5px;color:#b08e62}
+
+  @media (prefers-reduced-motion:reduce){
+    .layer,.bun-top{animation:none}
+  }
+
+  .icp-wrap{margin-top:auto;text-align:center;padding:28px 0 0;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .icp{font-size:11px;color:#b08e62;text-decoration:none;padding:4px 10px;border-radius:4px;background:rgba(255,255,255,0.5)}
+  .icp:hover{color:#8a6a42}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">WANWAN BURGER LAB</div>
+  <h1>今天夹什么<span class="dot">？</span></h1>
+  <div class="sub">汉堡中台 · 命运配餐系统 v1.0</div>
+</header>
+
+<div class="stage">
+  <div class="burger" id="burger">
+    <div class="empty-hint">空汉堡坯待命中<br>按下面的按钮，让命运发牌 🎲</div>
+  </div>
+  <div class="verdict" id="verdict"></div>
+</div>
+
+<div class="controls">
+  <div class="mode" id="mode">
+    <button data-m="light" >轻装版</button>
+    <button data-m="std" class="on">标准版</button>
+    <button data-m="deluxe">豪华版</button>
+  </div>
+  <button class="go" id="go">开 烙 ！</button>
+  <div class="hint">轻装＝1肉饼 ｜ 标准＝肉+芝士+菜 ｜ 豪华＝双肉饼全家桶</div>
+</div>
+
+<div class="icp-wrap"><a class="icp" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2026018722号-1</a><a class="icp" href="https://beian.mps.gov.cn/#/query/webSearch?code=11011502039877" target="_blank" rel="noopener">京公网安备11011502039877号</a></div>
+
+<script>
+const PROTEIN=[
+  {n:"芝士薯泥鸡肉饼",c:"#E9B45C",t:"#5C3A1E"},
+  {n:"烤鸡腿肉",c:"#C97B3D",t:"#fff"},
+  {n:"牛肉饼",c:"#7A4126",t:"#fff"},
+  {n:"猪肉饼",c:"#A9613B",t:"#fff"},
+  {n:"鱼排",c:"#E8C98F",t:"#5C3A1E"},
+  {n:"虾排",c:"#F08A5D",t:"#fff"},
+  {n:"煎蛋",c:"#FFE9A8",t:"#B8860B"},
+  {n:"午餐肉",c:"#E2937F",t:"#5C3A1E"},
+  {n:"培根",c:"#B85C4A",t:"#fff"},
+  {n:"火腿片",c:"#EFA0A0",t:"#7a2e2e"},
+];
+const VEG=[
+  {n:"生菜（现拌！）",c:"#9CCB5B",t:"#2f5212"},
+  {n:"番茄片",c:"#E06045",t:"#fff"},
+  {n:"酸黄瓜",c:"#8FB544",t:"#2f5212"},
+  {n:"洋葱圈",c:"#E8D9F0",t:"#6a4a8a"},
+  {n:"牛油果",c:"#A8C66C",t:"#3d5220"},
+  {n:"紫甘蓝丝",c:"#9B6BB5",t:"#fff"},
+  {n:"黄瓜片",c:"#BCD98A",t:"#3d5220"},
+];
+const EXTRA=[
+  {n:"芝士片（减脂版）",c:"#FFC93C",t:"#8a5a00"},
+  {n:"肉松",c:"#D9A45B",t:"#5C3A1E"},
+  {n:"土豆饼",c:"#E5C46B",t:"#5C3A1E"},
+  {n:"花生酱",c:"#B07B3E",t:"#fff"},
+  {n:"沙拉酱",c:"#FFF2CE",t:"#9a7a30"},
+  {n:"番茄酱",c:"#D7503C",t:"#fff"},
+  {n:"黑椒酱",c:"#4a3a2e",t:"#fff"},
+  {n:"老干妈（狠活）",c:"#A33222",t:"#fff"},
+];
+const QUIPS=[
+  "这个组合，物美见了都说内行。",
+  "成本预估 ≤10 元，碾压肯德基。",
+  "命运说：就这么夹，别犹豫。",
+  "建议拍照发圈，配文「随便做做」。",
+  "牙签记得插两根，防塌方认证款。",
+  "这一口下去，下午的班都有劲摸了。",
+  "芒果表示：饭后甜点已就位。",
+  "工位最香认证 · 同事羡慕款。",
+];
+
+let mode="std", rolling=false;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const pickN=(a,n)=>{const p=[...a],r=[];while(r.length<n&&p.length)r.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);return r};
+
+document.getElementById("mode").addEventListener("click",e=>{
+  if(e.target.dataset.m){
+    mode=e.target.dataset.m;
+    document.querySelectorAll(".mode button").forEach(b=>b.classList.toggle("on",b===e.target));
+  }
+});
+
+function build(){
+  if(rolling)return;
+  rolling=true;
+  const go=document.getElementById("go");go.disabled=true;
+  let layers=[];
+  if(mode==="light"){ layers=[pick(PROTEIN)]; if(Math.random()<.4)layers.push(pick(EXTRA)); }
+  if(mode==="std"){ layers=[pick(PROTEIN),pick(EXTRA),pick(VEG)]; }
+  if(mode==="deluxe"){ layers=[...pickN(PROTEIN,2),pick(EXTRA),...pickN(VEG,2)]; }
+
+  const burger=document.getElementById("burger");
+  const verdict=document.getElementById("verdict");
+  burger.innerHTML="";verdict.innerHTML="";
+
+  // 底坯
+  const bottom=document.createElement("div");
+  bottom.className="layer bun-bottom";bottom.textContent="";
+  burger.appendChild(bottom);
+
+  // 逐层掉落
+  layers.forEach((it,i)=>{
+    setTimeout(()=>{
+      const d=document.createElement("div");
+      d.className="layer";
+      d.style.background=it.c;d.style.color=it.t;
+      d.textContent=it.n;
+      burger.appendChild(d);
+    },350+i*420);
+  });
+
+  // 顶坯 + 判词
+  setTimeout(()=>{
+    const top=document.createElement("div");
+    top.className="bun-top";
+    for(let i=0;i<7;i++){
+      const s=document.createElement("i");
+      s.style.left=(12+Math.random()*70)+"%";
+      s.style.top=(15+Math.random()*55)+"%";
+      top.appendChild(s);
+    }
+    burger.appendChild(top);
+    verdict.innerHTML="本次配置：<b>"+layers.map(l=>l.n).join(" + ")+"</b><br>"+pick(QUIPS);
+    rolling=false;go.disabled=false;
+  },350+layers.length*420+200);
+}
+document.getElementById("go").addEventListener("click",build);
+</script>
+</body>
+</html>
